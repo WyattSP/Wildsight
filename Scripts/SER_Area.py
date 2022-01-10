@@ -10,12 +10,16 @@ import pandas as pd
 import re
 import numpy as np
 
+#File location of xlsx file
 Path = r"/Volumes/GoogleDrive/My Drive/Geoscience:Engineering/High Elevation Grasslands/SER.xlsx"
 
+#Import file
 SER = pd.read_excel(Path)
 
+#Search for all occurances of name "Festuca". Edit to change query
 fes = SER[SER['Scientific Name Formatted'].str.contains(r'Festuca')]
 
+#Find Percent occurance in Occurance Data Column
 O_Percent = []
 for i in np.arange(0,len(fes)):
     to_search = fes['Occurrence Data'].iloc[i]
@@ -29,6 +33,7 @@ ser_per = [float(re.sub("[^0-9.]","",i)) for i in O_Percent]
 
 max_area = [re.sub("[^0-9.]","",i) for i in fes['Occurrence Size']]
 
+#Find maximum area in Occurance Size column
 m_area = []
 for i in np.arange(0,len(max_area)):
     if max_area[i].endswith("."):
@@ -47,7 +52,7 @@ for i in np.arange(0,len(ser_per)):
     val = (ser_per[i]/100) * m_area[i]
     total_area.append(val)
 
-
+#Print total areas of query type. Rounded to two decimals
 print("Total High Elevation Grasslands: %s ha" % round(sum(total_area),2))
 
 
@@ -55,6 +60,10 @@ ind = np.where(fes["Shape ID"].reset_index() == 121696)[0][0]
 
 print("Area: %s ha" %round(total_area[ind],2))
 
+#Function of the above steps.
+#Data: xlsx file
+#Scientific_Name: Name you want to search for
+#Polygon: Polygon ID from CDC to include
 
 def return_area(Data,Scientific_Name,Polygons):
     #filer data based on search name
@@ -116,4 +125,5 @@ Polygon = [121698,121699,121695,121794,121696,121700,121702]
 fesc_c = "Festuca campestris"
 fesc_i = "Festuca idahoensis"
 
+#Function at work
 return_area(SER,fesc_c,Polygon)
