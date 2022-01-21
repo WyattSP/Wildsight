@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
-
 #Need attribute values from shape file
 import pandas as pd
 import re
 import numpy as np
 
 #File location of xlsx file
-Path = r"/Volumes/GoogleDrive/My Drive/Geoscience:Engineering/High Elevation Grasslands/SER.xlsx"
+Path = r"PATH/SER.xlsx"
 
 #Import file
 SER = pd.read_excel(Path)
