@@ -1,0 +1,92 @@
+#Data found and imported from:
+#https://globalenergymonitor.org/projects/global-coal-mine-tracker/
+
+import plotly.graph_objs as go
+import pandas as pd
+import numpy as np
+import plotly.offline
+
+#%%Clean Data
+Coal_mines['Status'].unique()
+color_sch = Coal_mines['Status']
+
+color_sch = color_sch.apply(lambda x: "darkslategrey" if x == 'Operating' else x)
+color_sch = color_sch.apply(lambda x: "cornsilk" if x == 'Shelved' else x)
+color_sch = color_sch.apply(lambda x: "tan" if x == 'Proposed' else x)
+color_sch = color_sch.apply(lambda x: "tan" if x == 'Cancelled' else x)
+color_sch = color_sch.apply(lambda x: "cornsilk" if x == 'Mothballed' else x)
+color_sch = color_sch.apply(lambda x: "darkslategrey" if x == '_x0008_Operating' else x)
+color_sch = color_sch.apply(lambda x: "tan" if x == 'Closed' else x)
+color_sch = [str(i) for i in color_sch]
+
+#%%Figure with dropdown
+
+fig = go.Figure()
+
+fig.add_trace(go.Scattergeo(locations=GHG_Country['Country'],
+                                   locationmode = 'country names',
+                                   marker = dict(color = list(range(len(GHG_Country['Country']))),
+                                                 size = GHG_Country['Annual CO2 Combustion Emissions (Mt CO2)'] ** 0.58,
+                                                 colorscale="Cividis"),
+                                   name = '',
+                                   text=GHG_Country['Annual CO2 Combustion Emissions (Mt CO2)'],
+                                   hovertext = GHG_Country['Country'],
+                                   textposition="top center",
+                                   hovertemplate=
+                                    "<b>%{hovertext}</b><br><br>" +
+                                    "Annual CO<sub>2</sub> Combustion Emissions: %{text:1f} Mt CO<sub>2</sub><br>"
+                                    "<extra></extra>"
+                                   ))
+
+fig.add_trace(go.Scattergeo(lon=Coal_mines['Longitude'],
+                            lat=Coal_mines['Latitude'],
+                            marker = dict(color = list(color_sch),
+                                                 size = 8),
+                                   visible=False,
+                                   name = '',
+                                   text=Coal_mines['Mine Name'],
+                                   hovertext = Coal_mines['Country'],
+                                   customdata = Coal_mines['Status'],
+                                   hovertemplate=
+                                    "<b>%{hovertext}</b><br><br>" +
+                                    "Mine Name: %{text}<br>" +
+                                    "Status: %{customdata}"
+                                    "<extra></extra>"
+                                   ))
+
+fig.update_layout(
+    title = "",
+    font = dict(
+        family="American Typewriter",
+        size = 18
+        ))
+
+fig.update_geos(projection_type="natural earth", showcountries=True, countrycolor="Black")
+
+# Add dropdown
+fig.update_layout(
+    updatemenus=[
+        dict(
+            active=0,
+            buttons=list([
+                dict(label="Annual CO<sub>2</sub> Combustion Emissions (Mt CO<sub>2</sub>)",
+                     method="update",
+                     args=[{"visible": [True, False]},
+                           {"title": ""}]),
+                dict(label="Coal Mines",
+                     method="update",
+                     args=[{"visible": [False, True]},
+                           {"title": ""}]),
+            ]),
+            direction="down",
+            pad={"r": 10, "t": 10},
+            showactive=True,
+            x=0,
+            xanchor="left",
+            y=1.2,
+            yanchor="top"
+        ),
+    ]
+)
+
+plotly.offline.plot(fig)
